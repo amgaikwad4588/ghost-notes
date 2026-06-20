@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data: blob:" />
   <title>GhostNotes</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -34,13 +34,20 @@
     </header>
 
     <div id="main">
-      <!-- Sidebar: list of note titles -->
+      <!-- Sidebar: notebooks + note list -->
       <aside id="sidebar">
         <div class="sidebar-head">
           <button id="searchBtn" class="search-icon-btn" title="Search (Ctrl+Shift+S)">⌕</button>
           <input id="search" type="text" placeholder="Search…" />
           <button id="newBtn" title="New note (Ctrl+Shift+Enter)">+ Note</button>
         </div>
+
+        <!-- Notebooks bar -->
+        <div id="notebookBar">
+          <div class="nb-header"><span class="nb-label">Notebooks</span></div>
+          <div id="notebookPills"></div>
+        </div>
+
         <ul id="noteList"></ul>
       </aside>
       <div id="sidebar-divider"></div>
@@ -48,6 +55,13 @@
       <!-- Editor -->
       <section id="editor">
         <input id="noteTitle" type="text" placeholder="Untitled note" />
+        <div id="noteNotebook" class="note-nb-bar hidden">
+          <span class="nb-in-label">in</span>
+          <div class="nb-selector-wrap">
+            <button id="notebookTag" class="nb-tag">No notebook ▾</button>
+            <div id="notebookTagDropdown" class="nb-tag-dropdown hidden"></div>
+          </div>
+        </div>
         <div id="mdToolbar" class="md-toolbar no-drag">
           <button class="md-btn" data-md="bold" title="Bold (Ctrl+B)"><b>B</b></button>
           <button class="md-btn" data-md="italic" title="Italic (Ctrl+I)"><i>I</i></button>
@@ -56,7 +70,10 @@
           <button class="md-btn" data-md="code" title="Code">&lt;/&gt;</button>
           <button class="md-btn" data-md="ulist" title="Bulleted list">&bull;</button>
           <button class="md-btn" data-md="olist" title="Numbered list">1.</button>
+          <button class="md-btn" data-md="todo" title="To-do item">☑</button>
+          <button class="md-btn" data-md="table" title="Insert table">⊞</button>
           <button class="md-btn" data-md="link" title="Link">&#128279;</button>
+          <button class="md-btn" data-md="export" title="Export note">↗</button>
           <span class="md-spacer"></span>
           <button id="deleteBtn" class="md-btn delete-btn" title="Delete note (Ctrl+Shift+Bksp)">🗑</button>
         </div>
@@ -72,9 +89,12 @@
       <span><b>Ctrl+B/I</b> bold/italic</span>
       <span><b>Ctrl+Shift+\</b> click-through</span>
       <span><b>Ctrl+Shift+±</b> opacity</span>
-      <span><b>Ctrl+Shift+↑↓←→</b> move</span>
+      <span id="wordCount" class="word-count"></span>
     </footer>
   </div>
+
+  <!-- Context menu for folder rename/delete -->
+  <div id="ctxMenu" class="ctx-menu hidden"></div>
 
   <script src="renderer.js"></script>
 </body>

@@ -6,7 +6,7 @@
 //   - frame:false + transparent   -> borderless overlay
 // Controlled entirely by global hotkeys and the mouse.
 
-const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, screen, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -14,19 +14,26 @@ let win = null;
 let clickThrough = false; // when true, mouse passes through the window
 
 // ---- Persistence -----------------------------------------------------------
-// Notes are stored as a single JSON file in the app's userData directory.
-// Automatic versioned backups prevent data loss.
+// Data is stored as { version: 2, notes: [...], folders: [...] } in notes.json.
+// Old format (bare array) is migrated automatically on first load.
 
 const dataFile = () => path.join(app.getPath('userData'), 'notes.json');
 const backupDir = () => { const d = path.join(app.getPath('userData'), 'backups'); if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); return d; };
 const MAX_BACKUPS = 20;
 
-function loadNotes() {
+function loadData() {
   // Try main file first
   try {
     const raw = fs.readFileSync(dataFile(), 'utf-8');
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    // Old format: bare array of notes
+    if (Array.isArray(parsed)) {
+      return { notes: parsed, folders: [] };
+    }
+    // New format: { version, notes, folders }
+    if (parsed && Array.isArray(parsed.notes)) {
+      return { notes: parsed.notes, folders: parsed.folders || [] };
+    }
   } catch (_) {}
 
   // Main file is empty or corrupt — try newest backup
@@ -41,26 +48,34 @@ function loadNotes() {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         console.log('Recovered from backup:', b);
+        const data = { version: 2, notes: parsed, folders: [] };
+        fs.writeFileSync(dataFile(), JSON.stringify(data, null, 2), 'utf-8');
+        return { notes: parsed, folders: [] };
+      }
+      if (parsed && Array.isArray(parsed.notes) && parsed.notes.length > 0) {
+        console.log('Recovered from backup:', b);
         fs.writeFileSync(dataFile(), JSON.stringify(parsed, null, 2), 'utf-8');
-        return parsed;
+        return { notes: parsed.notes, folders: parsed.folders || [] };
       }
     }
   } catch (_) {}
 
-  return [];
+  return { notes: [], folders: [] };
 }
 
-function saveNotes(notes) {
+function saveData(data) {
   try {
     // Backup existing file before overwriting
     try {
       const existing = fs.readFileSync(dataFile(), 'utf-8');
       const parsed = JSON.parse(existing);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      const hasContent = Array.isArray(parsed)
+        ? parsed.length > 0
+        : (parsed && Array.isArray(parsed.notes) && parsed.notes.length > 0);
+      if (hasContent) {
         const dir = backupDir();
         const stamp = new Date().toISOString().replace(/[:.]/g, '-');
         fs.writeFileSync(path.join(dir, `notes-${stamp}.json`), existing, 'utf-8');
-        // Prune old backups
         const all = fs.readdirSync(dir).filter(f => f.startsWith('notes-') && f.endsWith('.json')).sort();
         while (all.length > MAX_BACKUPS) {
           fs.unlinkSync(path.join(dir, all.shift()));
@@ -68,7 +83,8 @@ function saveNotes(notes) {
       }
     } catch (_) {}
 
-    fs.writeFileSync(dataFile(), JSON.stringify(notes, null, 2), 'utf-8');
+    const payload = { version: 2, notes: data.notes || [], folders: data.folders || [] };
+    fs.writeFileSync(dataFile(), JSON.stringify(payload, null, 2), 'utf-8');
     return true;
   } catch (err) {
     console.error('Failed to save notes:', err);
@@ -121,7 +137,6 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
   // Symmetric zoom: Ctrl+= / Ctrl++ bigger, Ctrl+- smaller, Ctrl+0 reset.
-  // (Ctrl+Shift+± is reserved for opacity, so we ignore Shift here.)
   win.webContents.on('before-input-event', (event, input) => {
     if (input.type !== 'keyDown' || !input.control || input.shift || input.alt) return;
     const wc = win.webContents;
@@ -176,7 +191,6 @@ function nudgeOpacity(delta) {
 function toggleClickThrough() {
   if (!win) return;
   clickThrough = !clickThrough;
-  // forward:true lets hover events still reach the renderer so we can show a hint
   win.setIgnoreMouseEvents(clickThrough, { forward: true });
   win.webContents.send('clickthrough-changed', clickThrough);
 }
@@ -184,8 +198,8 @@ function toggleClickThrough() {
 // ---- Global hotkeys --------------------------------------------------------
 function registerShortcuts() {
   const map = {
-    'CommandOrControl+Shift+Z': toggleVisibility,           // show / hide (quick toggle)
-    'CommandOrControl+Shift+N': toggleVisibility,           // show / hide
+    'CommandOrControl+Shift+Z': toggleVisibility,
+    'CommandOrControl+Shift+N': toggleVisibility,
     'CommandOrControl+Shift+Enter': () => win && win.webContents.send('new-note'),
     'CommandOrControl+Shift+Backspace': () => win && win.webContents.send('delete-note'),
     'CommandOrControl+Shift+S': () => win && win.webContents.send('focus-search'),
@@ -193,9 +207,9 @@ function registerShortcuts() {
     'CommandOrControl+Shift+Down': () => moveWindow(0, 40),
     'CommandOrControl+Shift+Left': () => moveWindow(-40, 0),
     'CommandOrControl+Shift+Right': () => moveWindow(40, 0),
-    'CommandOrControl+Shift+=': () => nudgeOpacity(0.1),     // more opaque
-    'CommandOrControl+Shift+-': () => nudgeOpacity(-0.1),    // more transparent
-    'CommandOrControl+Shift+\\': toggleClickThrough          // toggle mouse pass-through
+    'CommandOrControl+Shift+=': () => nudgeOpacity(0.1),
+    'CommandOrControl+Shift+-': () => nudgeOpacity(-0.1),
+    'CommandOrControl+Shift+\\': toggleClickThrough
   };
 
   for (const [accelerator, handler] of Object.entries(map)) {
@@ -205,21 +219,62 @@ function registerShortcuts() {
 }
 
 // ---- IPC -------------------------------------------------------------------
-ipcMain.handle('notes:load', () => loadNotes());
-ipcMain.handle('notes:save', (_e, notes) => saveNotes(notes));
-ipcMain.handle('notes:restore', () => { const n = loadNotes(); saveNotes(n); return n; });
+ipcMain.handle('notes:load', () => loadData());
+ipcMain.handle('notes:save', (_e, data) => saveData(data));
+ipcMain.handle('notes:restore', () => {
+  const d = loadData();
+  saveData(d);
+  return d;
+});
 ipcMain.handle('notes:backups', () => {
   try {
     const dir = backupDir();
     return fs.readdirSync(dir).filter(f => f.startsWith('notes-') && f.endsWith('.json')).sort().reverse();
   } catch (_) { return []; }
 });
+
+ipcMain.handle('notes:export', async (_e, { filename, content }) => {
+  if (!win) return false;
+  try {
+    const result = await dialog.showSaveDialog(win, {
+      defaultPath: filename,
+      filters: [
+        { name: 'HTML File', extensions: ['html'] },
+        { name: 'Plain Text', extensions: ['txt'] }
+      ]
+    });
+    if (result.canceled || !result.filePath) return false;
+    const ext = path.extname(result.filePath).toLowerCase();
+    let out = content;
+    if (ext === '.txt') {
+      out = content
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<\/tr>/gi, '\n')
+        .replace(/<\/td>/gi, '\t')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    }
+    fs.writeFileSync(result.filePath, out, 'utf-8');
+    return true;
+  } catch (err) {
+    console.error('Export failed:', err);
+    return false;
+  }
+});
+
 ipcMain.on('window:hide', () => win && win.hide());
 ipcMain.on('window:quit', () => app.quit());
 ipcMain.on('window:set-opacity', (_e, value) => { if (win) win.setOpacity(Math.min(1, Math.max(0.1, value))); });
 
 // ---- App lifecycle ---------------------------------------------------------
-// Single instance — a second launch just reveals the existing window.
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
@@ -240,7 +295,6 @@ if (!gotLock) {
 
 app.on('will-quit', () => globalShortcut.unregisterAll());
 
-// Keep running in the background (overlay style) even with no visible window.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });

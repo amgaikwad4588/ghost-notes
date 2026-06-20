@@ -26,13 +26,11 @@
 }
 
 [data-theme="light"] {
-  /* Transparent frosted-glass background */
   --bg: rgba(255, 255, 255, 0.22);
   --sidebar-bg: rgba(255, 255, 255, 0.18);
   --fill: rgba(255, 255, 255, 0.2);
   --fill-hover: rgba(255, 255, 255, 0.32);
   --separator: rgba(255, 255, 255, 0.3);
-  /* White text, fully opaque */
   --text: rgba(255, 255, 255, 1);
   --text-secondary: rgba(255, 255, 255, 0.75);
   --text-tertiary: rgba(255, 255, 255, 0.5);
@@ -284,6 +282,64 @@ html, body {
 #newBtn:hover { filter: brightness(1.1); }
 #newBtn:active { transform: scale(0.96); }
 
+/* ---- Notebooks bar ---- */
+#notebookBar {
+  border-bottom: 0.5px solid var(--separator);
+  padding: 6px 8px;
+  flex-shrink: 0;
+  transition: border-color .25s;
+}
+
+.nb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.nb-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  transition: color .25s;
+}
+
+#notebookPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.nb-pill {
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-ui);
+  color: var(--text-secondary);
+  background: var(--fill);
+  transition: background .12s, color .12s;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.nb-pill:hover { background: var(--fill-hover); color: var(--text); }
+.nb-pill.active { background: var(--accent-soft); color: var(--accent); }
+
+.nb-pill.nb-new-pill {
+  color: var(--text-tertiary);
+  background: transparent;
+  border: 0.5px dashed var(--separator);
+}
+.nb-pill.nb-new-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
 /* ---- note list ---- */
 #noteList {
   list-style: none;
@@ -343,6 +399,16 @@ html, body {
   transition: color .25s;
 }
 
+#noteList li .li-folder {
+  font-size: 10px;
+  color: var(--accent);
+  margin-top: 2px;
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---- editor ---- */
 #editor {
   flex: 1;
@@ -379,6 +445,69 @@ html, body {
 
 #noteTitle::placeholder { color: var(--text-tertiary); }
 
+/* ---- Notebook tag (below title) ---- */
+.note-nb-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 24px 10px;
+}
+
+.nb-in-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  transition: color .25s;
+}
+
+.nb-selector-wrap { position: relative; }
+
+.nb-tag {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--fill);
+  border: none;
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: background .12s, color .12s;
+}
+
+.nb-tag:hover { background: var(--fill-hover); color: var(--text); }
+
+.nb-tag-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 0.5px solid var(--app-border);
+  border-radius: 10px;
+  box-shadow: var(--app-shadow);
+  min-width: 150px;
+  z-index: 100;
+  padding: 4px;
+}
+
+.nb-tag-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background .1s;
+}
+
+.nb-tag-dropdown button:hover { background: var(--fill); }
+.nb-tag-dropdown button.active-nb { color: var(--accent); }
+
 .md-toolbar {
   display: flex;
   align-items: center;
@@ -386,6 +515,8 @@ html, body {
   padding: 5px 12px;
   border-bottom: 0.5px solid var(--separator);
   transition: border-color .25s;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .md-btn {
@@ -400,6 +531,7 @@ html, body {
   cursor: pointer;
   font-family: var(--font-ui);
   transition: background .12s, color .12s;
+  flex-shrink: 0;
 }
 
 .md-btn:hover { background: var(--fill); color: var(--text); }
@@ -409,6 +541,40 @@ html, body {
 .delete-btn { color: var(--danger) !important; opacity: 0.5; font-size: 14px; }
 .delete-btn:hover { background: var(--danger-soft) !important; opacity: 1; }
 
+/* ---- Context menu ---- */
+.ctx-menu {
+  position: fixed;
+  background: var(--bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 0.5px solid var(--app-border);
+  border-radius: 10px;
+  box-shadow: var(--app-shadow);
+  z-index: 200;
+  padding: 4px;
+  min-width: 130px;
+}
+
+.ctx-menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background .1s;
+}
+
+.ctx-menu button:hover { background: var(--fill); }
+.ctx-menu button.danger { color: var(--danger); }
+.ctx-menu button.danger:hover { background: var(--danger-soft); }
+
+/* ---- Note body ---- */
 #noteBody {
   flex: 1;
   background: transparent;
@@ -468,6 +634,64 @@ html, body {
   margin: 0.8em 0 0.3em;
 }
 
+/* ---- To-do / checkbox items ---- */
+.todo-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0.2em 0;
+  cursor: text;
+}
+
+.todo-cb {
+  cursor: pointer;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+
+.todo-item.done {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+/* ---- Tables ---- */
+#noteBody table.note-table {
+  border-collapse: collapse;
+  margin: 0.6em 0;
+  width: 100%;
+  font-size: 0.95em;
+}
+
+#noteBody table.note-table th,
+#noteBody table.note-table td {
+  border: 1px solid var(--separator);
+  padding: 5px 10px;
+  min-width: 60px;
+  vertical-align: top;
+  transition: border-color .25s;
+}
+
+#noteBody table.note-table th {
+  background: var(--fill);
+  font-weight: 600;
+  text-align: left;
+}
+
+#noteBody table.note-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+/* ---- Inline images ---- */
+.note-img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 6px 0;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ---- Empty state ---- */
 .empty {
   position: absolute;
   inset: 0;
@@ -489,16 +713,75 @@ html, body {
 /* ---- footer hints ---- */
 #hints {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 10px;
   padding: 5px 14px;
   border-top: 0.5px solid var(--separator);
   font-size: 10px;
   color: var(--text-tertiary);
   transition: border-color .25s, color .25s;
+  overflow: hidden;
 }
 
 #hints b { color: var(--text-secondary); font-weight: 500; }
+
+.word-count {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  transition: color .25s;
+}
+
+/* ---- Inline prompt widget (replaces native prompt() calls) ---- */
+.gn-inline-prompt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 0.5px solid var(--app-border);
+  border-radius: 10px;
+  box-shadow: var(--app-shadow);
+  padding: 5px 6px;
+  z-index: 300;
+  animation: appIn .15s cubic-bezier(.4,0,.2,1) both;
+}
+
+.gn-inline-prompt-input {
+  background: var(--fill);
+  border: none;
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  padding: 4px 9px;
+  outline: none;
+  width: 180px;
+  transition: background .12s;
+}
+
+.gn-inline-prompt-input:focus { background: var(--fill-hover); }
+.gn-inline-prompt-input::placeholder { color: var(--text-tertiary); }
+
+.gn-inline-prompt-ok {
+  height: 26px;
+  min-width: 28px;
+  background: var(--accent-soft);
+  border: none;
+  border-radius: 7px;
+  color: var(--accent);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: background .12s;
+  flex-shrink: 0;
+}
+
+.gn-inline-prompt-ok:hover { background: var(--accent); color: #fff; }
 
 /* scrollbars */
 ::-webkit-scrollbar { width: 5px; }

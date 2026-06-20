@@ -2,11 +2,14 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('bridge', {
-  // persistence
+  // persistence — data shape: { notes: [...], folders: [...] }
   loadNotes: () => ipcRenderer.invoke('notes:load'),
-  saveNotes: (notes) => ipcRenderer.invoke('notes:save', notes),
+  saveNotes: (data) => ipcRenderer.invoke('notes:save', data),
   restoreNotes: () => ipcRenderer.invoke('notes:restore'),
   listBackups: () => ipcRenderer.invoke('notes:backups'),
+
+  // export
+  exportNote: (filename, content) => ipcRenderer.invoke('notes:export', { filename, content }),
 
   // window controls
   hideWindow: () => ipcRenderer.send('window:hide'),
