@@ -100,7 +100,7 @@ html, body {
 
 .no-drag, input, textarea, button, #noteList { -webkit-app-region: no-drag; }
 
-.logo { color: var(--accent); font-size: 10px; line-height: 1; transition: color .25s; }
+.logo { color: #30d158; font-size: 10px; line-height: 1; }
 .app-name { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; text-shadow: var(--txt-shadow); }
 .status { font-size: 11px; color: var(--text-tertiary); margin-left: 2px; transition: color .25s; text-shadow: var(--txt-shadow); }
 
@@ -231,7 +231,7 @@ html, body {
 #newBtn {
   padding: 0 11px;
   height: 28px;
-  background: var(--accent);
+  background: rgba(120, 120, 128, 0.35);
   border: none;
   border-radius: 8px;
   color: #ffffff;
@@ -241,7 +241,7 @@ html, body {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: filter .15s, transform .1s, background .25s;
+  transition: filter .15s, transform .1s;
 }
 
 #newBtn:hover { filter: brightness(1.1); }
