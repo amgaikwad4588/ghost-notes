@@ -195,6 +195,10 @@ html, body {
 }
 #noteList li:hover { background: rgba(255,255,255,.05); }
 #noteList li.active { background: rgba(110,168,254,.16); }
+#noteList li[draggable="true"] { cursor: grab; }
+#noteList li[draggable="true"]:active { cursor: grabbing; }
+#noteList li.dragging { opacity: 0.35; }
+#noteList li.drag-over { outline: 1px solid rgba(110,168,254,.5); background: rgba(110,168,254,.1) !important; }
 #noteList li .li-title {
   font-size: 13px;
   font-weight: 500;

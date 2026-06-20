@@ -20,6 +20,7 @@ const els = {
 let notes = [];
 let activeId = null;
 let saveTimer = null;
+let dragSrcId = null;
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const fmtDate = (ts) => new Date(ts).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -47,15 +48,49 @@ function activeNote() {
 
 function renderList() {
   const q = els.search.value.trim().toLowerCase();
-  const visible = notes
-    .filter((n) => !q || n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q))
-    .sort((a, b) => b.updated - a.updated);
+  const visible = q
+    ? notes.filter((n) => n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q))
+           .sort((a, b) => b.updated - a.updated)
+    : [...notes];
 
   els.list.innerHTML = '';
   for (const n of visible) {
     const li = document.createElement('li');
     li.dataset.id = n.id;
     if (n.id === activeId) li.classList.add('active');
+
+    if (!q) {
+      li.draggable = true;
+      li.addEventListener('dragstart', (e) => {
+        dragSrcId = n.id;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => li.classList.add('dragging'), 0);
+      });
+      li.addEventListener('dragend', () => {
+        li.classList.remove('dragging');
+        els.list.querySelectorAll('.drag-over').forEach((el) => el.classList.remove('drag-over'));
+      });
+      li.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (dragSrcId === n.id) return;
+        els.list.querySelectorAll('.drag-over').forEach((el) => el.classList.remove('drag-over'));
+        li.classList.add('drag-over');
+      });
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        if (!dragSrcId || dragSrcId === n.id) return;
+        const srcIdx = notes.findIndex((x) => x.id === dragSrcId);
+        const dstIdx = notes.findIndex((x) => x.id === n.id);
+        if (srcIdx === -1 || dstIdx === -1) return;
+        const [moved] = notes.splice(srcIdx, 1);
+        notes.splice(dstIdx, 0, moved);
+        dragSrcId = null;
+        renderList();
+        persist();
+      });
+    }
 
     const t = document.createElement('div');
     t.className = 'li-title';
