@@ -23,7 +23,16 @@ let saveTimer = null;
 let dragSrcId = null;
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-const fmtDate = (ts) => new Date(ts).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+const fmtDate = (ts) => {
+  const d = new Date(ts);
+  const now = new Date();
+  if (d.toDateString() === now.toDateString())
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const yest = new Date(now); yest.setDate(now.getDate() - 1);
+  if (d.toDateString() === yest.toDateString()) return 'Yesterday';
+  if (now - d < 7 * 864e5) return d.toLocaleDateString([], { weekday: 'long' });
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+};
 
 async function persist() {
   await window.bridge.saveNotes(notes);
@@ -95,13 +104,23 @@ function renderList() {
     const t = document.createElement('div');
     t.className = 'li-title';
     t.textContent = n.title.trim() || 'Untitled note';
+    li.appendChild(t);
+
+    const tmp = document.createElement('div');
+    tmp.innerHTML = n.body || '';
+    const plain = (tmp.textContent || '').replace(/\s+/g, ' ').trim();
+    if (plain) {
+      const p = document.createElement('div');
+      p.className = 'li-preview';
+      p.textContent = plain;
+      li.appendChild(p);
+    }
 
     const d = document.createElement('div');
     d.className = 'li-date';
     d.textContent = fmtDate(n.updated);
-
-    li.appendChild(t);
     li.appendChild(d);
+
     li.addEventListener('click', () => selectNote(n.id));
     els.list.appendChild(li);
   }
