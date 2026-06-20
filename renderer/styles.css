@@ -19,6 +19,7 @@
   --track-bg: rgba(255, 255, 255, 0.14);
   --scroll-thumb: rgba(255, 255, 255, 0.1);
   --scroll-thumb-hover: rgba(255, 255, 255, 0.18);
+  --txt-shadow: none;
   --radius: 14px;
   --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
              "Segoe UI Variable", "Segoe UI", "Inter", system-ui, "Helvetica Neue", Arial, sans-serif;
@@ -26,25 +27,34 @@
 }
 
 [data-theme="light"] {
-  --bg: rgba(242, 242, 247, 0.96);
-  --sidebar-bg: rgba(255, 255, 255, 0.75);
-  --fill: rgba(120, 120, 128, 0.1);
-  --fill-hover: rgba(120, 120, 128, 0.18);
-  --separator: rgba(60, 60, 67, 0.29);
-  --text: rgba(0, 0, 0, 0.88);
-  --text-secondary: rgba(60, 60, 67, 0.6);
-  --text-tertiary: rgba(60, 60, 67, 0.3);
-  --accent: #007aff;
-  --accent-soft: rgba(0, 122, 255, 0.12);
-  --accent-link-border: rgba(0, 122, 255, 0.34);
-  --danger: #ff3b30;
-  --danger-soft: rgba(255, 59, 48, 0.12);
-  --app-border: rgba(0, 0, 0, 0.1);
-  --app-shadow: 0 2px 8px rgba(0,0,0,.06), 0 10px 30px rgba(0,0,0,.14), 0 28px 64px rgba(0,0,0,.2);
-  --code-bg: rgba(120, 120, 128, 0.12);
-  --track-bg: rgba(0, 0, 0, 0.1);
-  --scroll-thumb: rgba(0, 0, 0, 0.12);
-  --scroll-thumb-hover: rgba(0, 0, 0, 0.2);
+  /* Transparent frosted-glass background */
+  --bg: rgba(255, 255, 255, 0.22);
+  --sidebar-bg: rgba(255, 255, 255, 0.18);
+  --fill: rgba(255, 255, 255, 0.2);
+  --fill-hover: rgba(255, 255, 255, 0.32);
+  --separator: rgba(255, 255, 255, 0.3);
+  /* White text, fully opaque */
+  --text: rgba(255, 255, 255, 1);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-tertiary: rgba(255, 255, 255, 0.5);
+  --accent: #60b3ff;
+  --accent-soft: rgba(96, 179, 255, 0.2);
+  --accent-link-border: rgba(96, 179, 255, 0.45);
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255, 107, 107, 0.2);
+  --app-border: rgba(255, 255, 255, 0.35);
+  --app-shadow: 0 2px 8px rgba(0,0,0,.1), 0 10px 30px rgba(0,0,0,.2), 0 28px 64px rgba(0,0,0,.3);
+  --code-bg: rgba(255, 255, 255, 0.18);
+  --track-bg: rgba(255, 255, 255, 0.25);
+  --scroll-thumb: rgba(255, 255, 255, 0.25);
+  --scroll-thumb-hover: rgba(255, 255, 255, 0.4);
+  /* Black outline on text for readability against any wallpaper */
+  --txt-shadow:
+    -1px -1px 0 rgba(0,0,0,0.65),
+     1px -1px 0 rgba(0,0,0,0.65),
+    -1px  1px 0 rgba(0,0,0,0.65),
+     1px  1px 0 rgba(0,0,0,0.65),
+     0    2px 6px rgba(0,0,0,0.4);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,8 +109,8 @@ html, body {
 .no-drag, input, textarea, button, #noteList { -webkit-app-region: no-drag; }
 
 .logo { color: var(--accent); font-size: 10px; line-height: 1; transition: color .25s; }
-.app-name { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
-.status { font-size: 11px; color: var(--text-tertiary); margin-left: 2px; transition: color .25s; }
+.app-name { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; text-shadow: var(--txt-shadow); }
+.status { font-size: 11px; color: var(--text-tertiary); margin-left: 2px; transition: color .25s; text-shadow: var(--txt-shadow); }
 
 /* ---- top-bar controls ---- */
 .controls { display: flex; align-items: center; gap: 8px; }
@@ -281,6 +291,7 @@ html, body {
   color: var(--text);
   letter-spacing: -0.012em;
   transition: color .25s;
+  text-shadow: var(--txt-shadow);
 }
 
 #noteList li .li-preview {
@@ -292,6 +303,7 @@ html, body {
   margin-top: 2px;
   line-height: 1.4;
   transition: color .25s;
+  text-shadow: var(--txt-shadow);
 }
 
 #noteList li .li-date {
@@ -300,6 +312,7 @@ html, body {
   margin-top: 3px;
   letter-spacing: 0.01em;
   transition: color .25s;
+  text-shadow: var(--txt-shadow);
 }
 
 /* ---- editor ---- */
@@ -324,6 +337,7 @@ html, body {
   outline: none;
   user-select: text;
   transition: color .25s, border-color .25s;
+  text-shadow: var(--txt-shadow);
 }
 
 #noteTitle::placeholder { color: var(--text-tertiary); }
@@ -372,6 +386,7 @@ html, body {
   user-select: text;
   overflow-y: auto;
   transition: color .25s;
+  text-shadow: var(--txt-shadow);
 }
 
 #noteBody:empty::before {
