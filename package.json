@@ -1,6 +1,6 @@
 {
   "name": "ghost-notes",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "An invisible, always-on-top notes app (hidden from taskbar and screen sharing), controlled by hotkeys and mouse.",
   "main": "main.js",
   "author": "GhostNotes",
