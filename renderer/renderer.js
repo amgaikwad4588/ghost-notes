@@ -10,6 +10,7 @@ const els = {
   editor: document.getElementById('editor'),
   status: document.getElementById('status'),
   newBtn: document.getElementById('newBtn'),
+  themeBtn: document.getElementById('themeBtn'),
   hideBtn: document.getElementById('hideBtn'),
   quitBtn: document.getElementById('quitBtn'),
   fontUp: document.getElementById('fontUp'),
@@ -202,13 +203,24 @@ function applyOpacity(value, fromWindow) {
   if (!fromWindow) window.bridge.setOpacity(v);
 }
 
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem('gn.theme', theme);
+  els.themeBtn.textContent = theme === 'dark' ? '☀' : '☾';
+  els.themeBtn.title = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+}
+
 els.fontUp.addEventListener('click', () => changeFont(1));
 els.fontDown.addEventListener('click', () => changeFont(-1));
 els.opacity.addEventListener('input', (e) => applyOpacity(e.target.value, false));
+els.themeBtn.addEventListener('click', () => {
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+});
 
 window.bridge.onOpacityChanged((v) => applyOpacity(v, true));
 
 applyFontSize(parseInt(localStorage.getItem('gn.fontSize') || '15', 10));
+applyTheme(localStorage.getItem('gn.theme') || 'dark');
 {
   const savedOpacity = localStorage.getItem('gn.opacity');
   if (savedOpacity) applyOpacity(savedOpacity, false);

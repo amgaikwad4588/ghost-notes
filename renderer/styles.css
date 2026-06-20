@@ -1,6 +1,6 @@
 :root {
+  /* Dark theme — default */
   --bg: rgba(28, 28, 30, 0.94);
-  --bg-solid: #1c1c1e;
   --sidebar-bg: rgba(44, 44, 46, 0.72);
   --fill: rgba(120, 120, 128, 0.16);
   --fill-hover: rgba(120, 120, 128, 0.28);
@@ -10,12 +10,41 @@
   --text-tertiary: rgba(235, 235, 245, 0.26);
   --accent: #0a84ff;
   --accent-soft: rgba(10, 132, 255, 0.15);
+  --accent-link-border: rgba(10, 132, 255, 0.34);
   --danger: #ff453a;
   --danger-soft: rgba(255, 69, 58, 0.15);
+  --app-border: rgba(255, 255, 255, 0.13);
+  --app-shadow: 0 2px 8px rgba(0,0,0,.14), 0 10px 30px rgba(0,0,0,.32), 0 28px 72px rgba(0,0,0,.44);
+  --code-bg: rgba(120, 120, 128, 0.2);
+  --track-bg: rgba(255, 255, 255, 0.14);
+  --scroll-thumb: rgba(255, 255, 255, 0.1);
+  --scroll-thumb-hover: rgba(255, 255, 255, 0.18);
   --radius: 14px;
   --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
              "Segoe UI Variable", "Segoe UI", "Inter", system-ui, "Helvetica Neue", Arial, sans-serif;
   --fs: 15px;
+}
+
+[data-theme="light"] {
+  --bg: rgba(242, 242, 247, 0.96);
+  --sidebar-bg: rgba(255, 255, 255, 0.75);
+  --fill: rgba(120, 120, 128, 0.1);
+  --fill-hover: rgba(120, 120, 128, 0.18);
+  --separator: rgba(60, 60, 67, 0.29);
+  --text: rgba(0, 0, 0, 0.88);
+  --text-secondary: rgba(60, 60, 67, 0.6);
+  --text-tertiary: rgba(60, 60, 67, 0.3);
+  --accent: #007aff;
+  --accent-soft: rgba(0, 122, 255, 0.12);
+  --accent-link-border: rgba(0, 122, 255, 0.34);
+  --danger: #ff3b30;
+  --danger-soft: rgba(255, 59, 48, 0.12);
+  --app-border: rgba(0, 0, 0, 0.1);
+  --app-shadow: 0 2px 8px rgba(0,0,0,.06), 0 10px 30px rgba(0,0,0,.14), 0 28px 64px rgba(0,0,0,.2);
+  --code-bg: rgba(120, 120, 128, 0.12);
+  --track-bg: rgba(0, 0, 0, 0.1);
+  --scroll-thumb: rgba(0, 0, 0, 0.12);
+  --scroll-thumb-hover: rgba(0, 0, 0, 0.2);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,13 +68,11 @@ html, body {
   background: var(--bg);
   backdrop-filter: blur(48px) saturate(200%);
   -webkit-backdrop-filter: blur(48px) saturate(200%);
-  border: 0.5px solid rgba(255, 255, 255, 0.13);
+  border: 0.5px solid var(--app-border);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.14),
-    0 10px 30px rgba(0, 0, 0, 0.32),
-    0 28px 72px rgba(0, 0, 0, 0.44);
+  box-shadow: var(--app-shadow);
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
 
 /* ---- title bar ---- */
@@ -55,9 +82,9 @@ html, body {
   justify-content: space-between;
   height: 44px;
   padding: 0 10px 0 14px;
-  background: transparent;
   border-bottom: 0.5px solid var(--separator);
   flex-shrink: 0;
+  transition: border-color .25s;
 }
 
 .drag-region {
@@ -71,19 +98,9 @@ html, body {
 
 .no-drag, input, textarea, button, #noteList { -webkit-app-region: no-drag; }
 
-.logo { color: var(--accent); font-size: 10px; line-height: 1; }
-
-.app-name {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.status {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  margin-left: 2px;
-}
+.logo { color: var(--accent); font-size: 10px; line-height: 1; transition: color .25s; }
+.app-name { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+.status { font-size: 11px; color: var(--text-tertiary); margin-left: 2px; transition: color .25s; }
 
 /* ---- top-bar controls ---- */
 .controls { display: flex; align-items: center; gap: 8px; }
@@ -116,9 +133,10 @@ html, body {
   width: 70px;
   height: 3px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--track-bg);
   outline: none;
   cursor: pointer;
+  transition: background .25s;
 }
 
 #opacity::-webkit-slider-thumb {
@@ -141,6 +159,7 @@ html, body {
   background: var(--sidebar-bg);
   overflow: hidden;
   flex-shrink: 0;
+  transition: background .25s;
 }
 
 #sidebar-divider {
@@ -163,10 +182,7 @@ html, body {
 }
 
 #sidebar-divider:hover::after,
-#sidebar-divider.dragging::after {
-  background: var(--accent);
-  width: 2px;
-}
+#sidebar-divider.dragging::after { background: var(--accent); width: 2px; }
 
 .sidebar-head {
   display: flex;
@@ -175,6 +191,7 @@ html, body {
   padding: 8px 10px;
   border-bottom: 0.5px solid var(--separator);
   overflow: hidden;
+  transition: border-color .25s;
 }
 
 #searchBtn {
@@ -203,7 +220,7 @@ html, body {
   font-size: 13px;
   font-family: var(--font-ui);
   outline: none;
-  transition: background .15s;
+  transition: background .15s, color .25s;
 }
 
 #search::placeholder { color: var(--text-tertiary); }
@@ -222,7 +239,7 @@ html, body {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: filter .15s, transform .1s;
+  transition: filter .15s, transform .1s, background .25s;
 }
 
 #newBtn:hover { filter: brightness(1.1); }
@@ -263,6 +280,7 @@ html, body {
   text-overflow: ellipsis;
   color: var(--text);
   letter-spacing: -0.012em;
+  transition: color .25s;
 }
 
 #noteList li .li-preview {
@@ -273,6 +291,7 @@ html, body {
   text-overflow: ellipsis;
   margin-top: 2px;
   line-height: 1.4;
+  transition: color .25s;
 }
 
 #noteList li .li-date {
@@ -280,6 +299,7 @@ html, body {
   color: var(--text-tertiary);
   margin-top: 3px;
   letter-spacing: 0.01em;
+  transition: color .25s;
 }
 
 /* ---- editor ---- */
@@ -303,6 +323,7 @@ html, body {
   padding: 20px 24px 14px;
   outline: none;
   user-select: text;
+  transition: color .25s, border-color .25s;
 }
 
 #noteTitle::placeholder { color: var(--text-tertiary); }
@@ -313,6 +334,7 @@ html, body {
   gap: 1px;
   padding: 5px 12px;
   border-bottom: 0.5px solid var(--separator);
+  transition: border-color .25s;
 }
 
 .md-btn {
@@ -349,6 +371,7 @@ html, body {
   outline: none;
   user-select: text;
   overflow-y: auto;
+  transition: color .25s;
 }
 
 #noteBody:empty::before {
@@ -357,21 +380,23 @@ html, body {
   pointer-events: none;
 }
 
-#noteBody strong { font-weight: 700; color: #fff; }
-#noteBody em { font-style: italic; color: rgba(235, 235, 245, 0.8); }
+#noteBody strong { font-weight: 700; color: var(--text); }
+#noteBody em { font-style: italic; color: var(--text-secondary); }
 
 #noteBody code {
-  background: rgba(120, 120, 128, 0.2);
+  background: var(--code-bg);
   border-radius: 5px;
   padding: 1px 6px;
   font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
   font-size: 0.88em;
+  transition: background .25s;
 }
 
 #noteBody a {
   color: var(--accent);
   text-decoration: none;
-  border-bottom: 1px solid rgba(10, 132, 255, 0.34);
+  border-bottom: 1px solid var(--accent-link-border);
+  transition: color .25s, border-color .25s;
 }
 
 #noteBody blockquote {
@@ -379,6 +404,7 @@ html, body {
   padding-left: 14px;
   margin: 0.5em 0;
   color: var(--text-secondary);
+  transition: border-color .25s, color .25s;
 }
 
 #noteBody ul, #noteBody ol { padding-left: 22px; margin: 0.4em 0; }
@@ -403,6 +429,7 @@ html, body {
   font-size: 13px;
   gap: 6px;
   padding: 24px;
+  transition: color .25s;
 }
 
 .empty b { color: var(--text-secondary); font-weight: 500; }
@@ -417,6 +444,7 @@ html, body {
   border-top: 0.5px solid var(--separator);
   font-size: 10px;
   color: var(--text-tertiary);
+  transition: border-color .25s, color .25s;
 }
 
 #hints b { color: var(--text-secondary); font-weight: 500; }
@@ -424,8 +452,5 @@ html, body {
 /* scrollbars */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 10px; transition: background .25s; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
