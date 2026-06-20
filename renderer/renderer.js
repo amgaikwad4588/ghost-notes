@@ -9,6 +9,7 @@ const els = {
   empty: document.getElementById('emptyState'),
   editor: document.getElementById('editor'),
   status: document.getElementById('status'),
+  sidebarHead: document.querySelector('.sidebar-head'),
   newBtn: document.getElementById('newBtn'),
   themeBtn: document.getElementById('themeBtn'),
   hideBtn: document.getElementById('hideBtn'),
@@ -22,6 +23,7 @@ let notes = [];
 let activeId = null;
 let saveTimer = null;
 let dragSrcId = null;
+let pendingNewId = null;
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const fmtDate = (ts) => {
@@ -68,6 +70,7 @@ function renderList() {
     const li = document.createElement('li');
     li.dataset.id = n.id;
     if (n.id === activeId) li.classList.add('active');
+    if (n.id === pendingNewId) { li.classList.add('note-new'); pendingNewId = null; }
 
     if (!q) {
       li.draggable = true;
@@ -144,15 +147,25 @@ function renderEditor() {
 }
 
 function selectNote(id) {
-  activeId = id;
-  renderList();
-  renderEditor();
+  if (id === activeId) return;
+  els.editor.classList.remove('note-ready');
+  els.editor.classList.add('switching');
+  setTimeout(() => {
+    activeId = id;
+    renderList();
+    renderEditor();
+    els.editor.classList.remove('switching');
+    requestAnimationFrame(() => {
+      els.editor.classList.add('note-ready');
+    });
+  }, 110);
 }
 
 function newNote() {
   const n = { id: uid(), title: '', body: '', updated: Date.now() };
   notes.unshift(n);
   activeId = n.id;
+  pendingNewId = n.id;
   renderList();
   renderEditor();
   els.title.focus();
@@ -272,17 +285,14 @@ els.title.addEventListener('input', onEdit);
 els.body.addEventListener('input', onEdit);
 els.body.addEventListener('blur', onEdit);
 function openSearch() {
-  els.search.classList.remove('hidden');
-  els.searchBtn.classList.add('hidden');
-  els.search.focus();
-  els.search.select();
+  els.sidebarHead.classList.add('search-open');
+  setTimeout(() => { els.search.focus(); els.search.select(); }, 200);
 }
 
 function closeSearch() {
+  els.sidebarHead.classList.remove('search-open');
   els.search.value = '';
   renderList();
-  els.search.classList.add('hidden');
-  els.searchBtn.classList.remove('hidden');
 }
 
 els.searchBtn.addEventListener('click', openSearch);

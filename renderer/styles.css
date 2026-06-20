@@ -49,6 +49,20 @@
   --scroll-thumb-hover: rgba(255, 255, 255, 0.4);
 }
 
+/* ---- keyframes ---- */
+@keyframes appIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes noteSlideIn {
+  from { opacity: 0; transform: translateY(-7px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes editorFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -75,6 +89,7 @@ html, body {
   overflow: hidden;
   box-shadow: var(--app-shadow);
   transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
+  animation: appIn .4s cubic-bezier(.4, 0, .2, 1) both;
 }
 
 /* ---- title bar ---- */
@@ -125,8 +140,10 @@ html, body {
 }
 
 .ctl-btn:hover { background: var(--fill-hover); color: var(--text); }
-.ctl-btn:active { transform: scale(0.95); }
+.ctl-btn:active { transform: scale(0.92); }
 #quitBtn:hover { background: var(--danger-soft); color: var(--danger); }
+#themeBtn { transition: background .15s, color .15s, transform .35s cubic-bezier(.4,0,.2,1); }
+#themeBtn:active { transform: rotate(30deg) scale(0.9); }
 
 .slider-group .ctl-icon { font-size: 11px; color: var(--text-secondary); }
 
@@ -206,23 +223,43 @@ html, body {
   font-size: 14px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background .15s, color .15s;
+  overflow: hidden;
+  transition: opacity .18s ease, transform .18s ease, width .22s cubic-bezier(.4,0,.2,1), background .15s, color .15s;
 }
 
 #searchBtn:hover { background: var(--fill-hover); color: var(--text); }
 
+.sidebar-head.search-open #searchBtn {
+  opacity: 0;
+  width: 0;
+  transform: scale(0.7);
+  pointer-events: none;
+}
+
 #search {
-  flex: 1;
+  flex: 0;
   min-width: 0;
+  max-width: 0;
+  opacity: 0;
+  padding: 5px 0;
+  overflow: hidden;
+  pointer-events: none;
   background: var(--fill);
   border: none;
   border-radius: 8px;
   color: var(--text);
-  padding: 5px 10px;
   font-size: 13px;
   font-family: var(--font-ui);
   outline: none;
-  transition: background .15s, color .25s;
+  transition: max-width .28s cubic-bezier(.4,0,.2,1), opacity .2s ease, padding .25s ease, flex .25s ease, background .15s, color .25s;
+}
+
+.sidebar-head.search-open #search {
+  flex: 1;
+  max-width: 500px;
+  opacity: 1;
+  padding: 5px 10px;
+  pointer-events: auto;
 }
 
 #search::placeholder { color: var(--text-tertiary); }
@@ -265,6 +302,8 @@ html, body {
 
 #noteList li:hover { background: var(--fill); }
 #noteList li.active { background: var(--accent-soft); }
+
+#noteList li.note-new { animation: noteSlideIn .22s cubic-bezier(.4, 0, .2, 1) both; }
 
 #noteList li[draggable="true"] { cursor: grab; }
 #noteList li[draggable="true"]:active { cursor: grabbing; }
@@ -325,8 +364,18 @@ html, body {
   padding: 20px 24px 14px;
   outline: none;
   user-select: text;
-  transition: color .25s, border-color .25s;
+  transition: opacity .12s ease, transform .12s ease, color .25s, border-color .25s;
 }
+
+#editor.switching #noteTitle,
+#editor.switching #noteBody {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: none;
+}
+
+#editor.note-ready #noteTitle { animation: editorFadeIn .18s cubic-bezier(.4,0,.2,1) both; }
+#editor.note-ready #noteBody  { animation: editorFadeIn .22s cubic-bezier(.4,0,.2,1) both; }
 
 #noteTitle::placeholder { color: var(--text-tertiary); }
 
@@ -373,7 +422,7 @@ html, body {
   outline: none;
   user-select: text;
   overflow-y: auto;
-  transition: color .25s;
+  transition: opacity .12s ease, transform .12s ease, color .25s;
 }
 
 #noteBody:empty::before {
