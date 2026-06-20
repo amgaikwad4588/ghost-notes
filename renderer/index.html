@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>GhostNotes</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Title bar: the only draggable region -->
+    <header id="titlebar">
+      <div class="drag-region">
+        <span class="logo">●</span>
+        <span class="app-name">GhostNotes</span>
+        <span id="status" class="status"></span>
+      </div>
+      <div class="controls no-drag">
+        <div class="ctl-group" title="Font size">
+          <button id="fontDown" class="ctl-btn">A−</button>
+          <button id="fontUp" class="ctl-btn">A+</button>
+        </div>
+        <div class="ctl-group slider-group" title="Transparency">
+          <span class="ctl-icon">◐</span>
+          <input id="opacity" type="range" min="0.1" max="1" step="0.01" value="1" />
+        </div>
+        <div class="win-buttons">
+          <button id="hideBtn" class="ctl-btn" title="Hide (Ctrl+Shift+Z)">—</button>
+          <button id="quitBtn" class="ctl-btn" title="Quit">✕</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="main">
+      <!-- Sidebar: list of note titles -->
+      <aside id="sidebar">
+        <div class="sidebar-head">
+          <input id="search" type="text" placeholder="Search…  (Ctrl+Shift+S)" />
+          <button id="newBtn" title="New note (Ctrl+Shift+Enter)">+</button>
+        </div>
+        <ul id="noteList"></ul>
+      </aside>
+      <div id="sidebar-divider"></div>
+
+      <!-- Editor -->
+      <section id="editor">
+        <input id="noteTitle" type="text" placeholder="Untitled note" />
+        <div id="mdToolbar" class="md-toolbar no-drag">
+          <button class="md-btn" data-md="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+          <button class="md-btn" data-md="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+          <button class="md-btn" data-md="heading" title="Heading">H</button>
+          <button class="md-btn" data-md="quote" title="Quote">&ldquo;</button>
+          <button class="md-btn" data-md="code" title="Code">&lt;/&gt;</button>
+          <button class="md-btn" data-md="ulist" title="Bulleted list">&bull;</button>
+          <button class="md-btn" data-md="olist" title="Numbered list">1.</button>
+          <button class="md-btn" data-md="link" title="Link">&#128279;</button>
+          <span class="md-spacer"></span>
+          <button id="deleteBtn" class="md-btn delete-btn" title="Delete note (Ctrl+Shift+Bksp)">🗑</button>
+        </div>
+        <div id="noteBody" contenteditable="true" spellcheck="false"></div>
+        <div id="emptyState" class="empty">No note selected. Press <b>+</b> or <b>Ctrl+Shift+Enter</b> to create one.</div>
+      </section>
+    </div>
+
+    <footer id="hints">
+      <span><b>Ctrl+Shift+Z</b> hide/show</span>
+      <span><b>Ctrl+Shift+Enter</b> new</span>
+      <span><b>Ctrl+Shift+Bksp</b> delete</span>
+      <span><b>Ctrl+B/I</b> bold/italic</span>
+      <span><b>Ctrl+Shift+\</b> click-through</span>
+      <span><b>Ctrl+Shift+±</b> opacity</span>
+      <span><b>Ctrl+Shift+↑↓←→</b> move</span>
+    </footer>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

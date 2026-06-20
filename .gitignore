@@ -1,0 +1,5 @@
+node_modules/
+dist/
+dist.7z
+*.exe
+*.7z

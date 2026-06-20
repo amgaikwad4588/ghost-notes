@@ -1,0 +1,45 @@
+{
+  "name": "ghost-notes",
+  "version": "1.0.0",
+  "description": "An invisible, always-on-top notes app (hidden from taskbar and screen sharing), controlled by hotkeys and mouse.",
+  "main": "main.js",
+  "author": "GhostNotes",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:portable": "electron-builder --win portable",
+    "dist:installer": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ghostnotes.app",
+    "productName": "GhostNotes",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "portable": {
+      "artifactName": "GhostNotes-portable.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "GhostNotes-Setup.exe"
+    }
+  }
+}
