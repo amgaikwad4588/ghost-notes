@@ -3,6 +3,7 @@
 const els = {
   list: document.getElementById('noteList'),
   search: document.getElementById('search'),
+  searchBtn: document.getElementById('searchBtn'),
   title: document.getElementById('noteTitle'),
   body: document.getElementById('noteBody'),
   empty: document.getElementById('emptyState'),
@@ -204,7 +205,24 @@ document.querySelectorAll('.md-btn[data-md]').forEach(btn => {
 els.title.addEventListener('input', onEdit);
 els.body.addEventListener('input', onEdit);
 els.body.addEventListener('blur', onEdit);
+function openSearch() {
+  els.search.classList.remove('hidden');
+  els.searchBtn.classList.add('hidden');
+  els.search.focus();
+  els.search.select();
+}
+
+function closeSearch() {
+  els.search.value = '';
+  renderList();
+  els.search.classList.add('hidden');
+  els.searchBtn.classList.remove('hidden');
+}
+
+els.searchBtn.addEventListener('click', openSearch);
 els.search.addEventListener('input', renderList);
+els.search.addEventListener('blur', () => { if (!els.search.value) closeSearch(); });
+els.search.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSearch(); });
 els.newBtn.addEventListener('click', newNote);
 els.hideBtn.addEventListener('click', () => window.bridge.hideWindow());
 els.quitBtn.addEventListener('click', () => window.bridge.quit());
@@ -213,7 +231,7 @@ document.getElementById('deleteBtn').addEventListener('click', deleteActive);
 
 window.bridge.onNewNote(() => newNote());
 window.bridge.onDeleteNote(() => deleteActive());
-window.bridge.onFocusSearch(() => { els.search.focus(); els.search.select(); });
+window.bridge.onFocusSearch(() => openSearch());
 window.bridge.onClickThroughChanged((on) => flashStatus(on ? 'click-through ON' : 'click-through OFF'));
 
 document.addEventListener('keydown', (e) => {

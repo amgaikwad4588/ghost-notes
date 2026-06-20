@@ -144,9 +144,24 @@ html, body {
   gap: 6px;
   padding: 8px;
   border-bottom: 1px solid var(--border);
+  overflow: hidden;
 }
+#searchBtn {
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .12s, color .12s;
+}
+#searchBtn:hover { background: rgba(255,255,255,.08); color: var(--text); }
 #search {
   flex: 1;
+  min-width: 0;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -157,14 +172,17 @@ html, body {
 }
 #search:focus { border-color: var(--accent); }
 #newBtn {
-  width: 30px;
+  padding: 0 10px;
+  height: 30px;
   background: var(--accent);
   border: none;
   border-radius: 8px;
   color: #08121f;
-  font-size: 18px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 #newBtn:hover { filter: brightness(1.1); }
 
